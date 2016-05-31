@@ -35,6 +35,6 @@ public class Essentials extends Module {
     }
 
     public static String capitalise(String input) {
-        return input.replace(input.charAt(0), (input.charAt(0) + "").toLowerCase().charAt(0));
+        return String.valueOf(input.charAt(0)).toUpperCase() + input.substring(1).toLowerCase();
     }
 }
