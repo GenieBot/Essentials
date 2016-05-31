@@ -4,6 +4,7 @@ import io.sponges.bot.api.cmd.Command;
 import io.sponges.bot.api.cmd.CommandRequest;
 import io.sponges.bot.api.module.Module;
 import io.sponges.bot.api.module.ModuleManager;
+import io.sponges.bot.modules.essentials.Essentials;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -20,7 +21,6 @@ public class ModulesCommand extends Command {
     @Override
     public void onCommand(CommandRequest request, String[] args) {
         ModuleManager moduleManager = module.getModuleManager();
-
         if (args.length == 0) {
             StringBuilder builder = new StringBuilder();
             Collection<Module> modules = moduleManager.getModules();
@@ -31,7 +31,7 @@ public class ModulesCommand extends Command {
                 builder.append("Loaded modules").append(" (").append(modules.size()).append("): ");
                 while (iterator.hasNext()) {
                     Module module = iterator.next();
-                    builder.append(module.getId()).append(" (").append(module.getVersion()).append(")");
+                    builder.append(Essentials.capitalise(module.getId())).append(" (").append(module.getVersion()).append(")");
                     if (iterator.hasNext()) builder.append(", ");
                 }
             }

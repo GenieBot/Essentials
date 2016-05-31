@@ -2,15 +2,12 @@ package io.sponges.bot.modules.essentials;
 
 import io.sponges.bot.api.cmd.CommandManager;
 import io.sponges.bot.api.module.Module;
-import io.sponges.bot.modules.essentials.cmd.HelpCommand;
-import io.sponges.bot.modules.essentials.cmd.ModulesCommand;
-import io.sponges.bot.modules.essentials.cmd.SayCommand;
-import io.sponges.bot.modules.essentials.cmd.SearchCommand;
+import io.sponges.bot.modules.essentials.cmd.*;
 
 public class Essentials extends Module {
 
     public Essentials() {
-        super("Essentials", "1.02");
+        super("Essentials", "1.05");
     }
 
     @Override
@@ -20,6 +17,8 @@ public class Essentials extends Module {
         commandManager.registerCommand(this, new HelpCommand(this));
         commandManager.registerCommand(this, new SayCommand());
         commandManager.registerCommand(this, new SearchCommand(this));
+        commandManager.registerCommand(this, new AboutCommand());
+        commandManager.registerCommand(this, new LongHelpCommand(this));
     }
 
     @Override
