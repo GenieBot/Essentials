@@ -2,7 +2,6 @@ package io.sponges.bot.modules.essentials.cmd;
 
 import io.sponges.bot.api.cmd.Command;
 import io.sponges.bot.api.cmd.CommandRequest;
-import io.sponges.bot.modules.essentials.Essentials;
 
 public class SayCommand extends Command {
 
@@ -16,6 +15,6 @@ public class SayCommand extends Command {
             commandRequest.reply("Usage: say [something to say]");
             return;
         }
-        commandRequest.reply(Essentials.join(args, ' '));
+        commandRequest.reply(String.join(" ", args));
     }
 }

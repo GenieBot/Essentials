@@ -1,21 +1,23 @@
 package io.sponges.bot.modules.essentials.cmd;
 
 import io.sponges.bot.api.cmd.Command;
+import io.sponges.bot.api.cmd.CommandManager;
 import io.sponges.bot.api.cmd.CommandRequest;
-import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.module.Module;
+import io.sponges.bot.api.module.ModuleManager;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 public class HelpCommand extends Command {
 
-    private final Module module;
+    private final ModuleManager moduleManager;
+    private final CommandManager commandManager;
 
     public HelpCommand(Module module) {
         super("shows command help", "commands", "help", "cmds", "usage");
-        this.module = module;
+        this.moduleManager = module.getModuleManager();
+        this.commandManager = module.getCommandManager();
     }
 
     @Override
@@ -23,40 +25,26 @@ public class HelpCommand extends Command {
         StringBuilder builder = new StringBuilder("Commands (");
         Collection<Command> commands;
         if (args.length == 0) {
-            commands = module.getCommandManager().getCommands();
+            commands = commandManager.getCommands();
             builder.append(commands.size());
         } else {
             String moduleId = args[0];
-            Module module = this.module.getModuleManager().getModule(moduleId);
+            Module module = moduleManager.getModule(moduleId);
             if (module == null) {
                 request.reply("Invalid module \"" + moduleId + "\". Use the modules command.");
                 return;
             }
-            commands = module.getCommandManager().getCommands(module);
-            if (commands == null || commands.size() == 0) {
+            if (!commandManager.hasCommands(module)) {
                 request.reply("That module does not have any commands!");
                 return;
             }
+            commands = commandManager.getCommands(module);
             builder.append(commands.size());
         }
         builder.append("): ");
-        User user = request.getUser();
-        boolean isOp = user.isOp();
         Iterator<Command> iterator = commands.iterator();
         while (iterator.hasNext()) {
             Command command = iterator.next();
-            if (command.requiresOp() && !isOp) continue;
-            List<String> permissions = command.getPermissions();
-            boolean cont = true;
-            if (permissions.size() > 0) {
-                for (String permission : permissions) {
-                    if (!user.hasPermission(permission)) {
-                        cont = false;
-                        break;
-                    }
-                }
-                if (!cont) continue;
-            }
             builder.append(command.getNames()[0]);
             if (iterator.hasNext()) {
                 builder.append(", ");

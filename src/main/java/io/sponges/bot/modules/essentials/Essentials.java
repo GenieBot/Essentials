@@ -7,7 +7,7 @@ import io.sponges.bot.modules.essentials.cmd.*;
 public class Essentials extends Module {
 
     public Essentials() {
-        super("Essentials", "1.05");
+        super("Essentials", "1.07");
     }
 
     @Override
@@ -16,22 +16,11 @@ public class Essentials extends Module {
         commandManager.registerCommand(this, new ModulesCommand(this));
         commandManager.registerCommand(this, new HelpCommand(this));
         commandManager.registerCommand(this, new SayCommand());
-        commandManager.registerCommand(this, new SearchCommand(this));
         commandManager.registerCommand(this, new AboutCommand());
-        commandManager.registerCommand(this, new LongHelpCommand(this));
     }
 
     @Override
     public void onDisable() {
-    }
-
-    public static String join(String[] input, char joiner) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < input.length; i++) {
-            if (i != 0) builder.append(joiner);
-            builder.append(input[i]);
-        }
-        return builder.toString();
     }
 
     public static String capitalise(String input) {
