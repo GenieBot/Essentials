@@ -2,6 +2,8 @@ package io.sponges.bot.modules.essentials.cmd;
 
 import io.sponges.bot.api.cmd.Command;
 import io.sponges.bot.api.cmd.CommandRequest;
+import io.sponges.bot.api.entities.manager.NetworkModuleManager;
+import io.sponges.bot.api.exception.ModuleNotFoundException;
 import io.sponges.bot.api.module.Module;
 import io.sponges.bot.api.module.ModuleManager;
 import io.sponges.bot.modules.essentials.Essentials;
@@ -20,7 +22,12 @@ public class ModulesCommand extends Command {
 
     @Override
     public void onCommand(CommandRequest request, String[] args) {
+        if (!request.getUser().isPlatformAdmin() && !request.getUser().isOp()) {
+            request.reply("No permission. Must be admin in this network!");
+            return;
+        }
         ModuleManager moduleManager = module.getModuleManager();
+        NetworkModuleManager networkModuleManager = request.getNetwork().getModuleManager();
         if (args.length == 0) {
             StringBuilder builder = new StringBuilder();
             Collection<Module> modules = moduleManager.getModules();
@@ -31,7 +38,9 @@ public class ModulesCommand extends Command {
                 builder.append("Loaded modules").append(" (").append(modules.size()).append("): ");
                 while (iterator.hasNext()) {
                     Module module = iterator.next();
-                    builder.append(Essentials.capitalise(module.getId())).append(" (").append(module.getVersion()).append(")");
+                    boolean enabled = networkModuleManager.isEnabled(module);
+                    String enabledString = enabled ? "enabled" : "disabled";
+                    builder.append(Essentials.capitalise(module.getName())).append(" (").append(enabledString).append(")");
                     if (iterator.hasNext()) builder.append(", ");
                 }
             }
@@ -39,24 +48,44 @@ public class ModulesCommand extends Command {
             request.reply(builder.toString());
         } else {
             if (args.length == 2) {
-                switch (args[0].toLowerCase()) {
+                int moduleId;
+                try {
+                    moduleId = moduleManager.getModuleId(args[0].toLowerCase());
+                } catch (ModuleNotFoundException e) {
+                    request.reply("Invalid module \"" + args[0] + "\". Usage: modules <module> <enable/disable>");
+                    return;
+                }
+                switch (args[1].toLowerCase()) {
                     case "enable": {
-                        Module module = moduleManager.getModule(args[1].toLowerCase());
+                        Module module = moduleManager.getModule(moduleId);
                         if (module == null) {
                             request.reply("Invalid module!");
                             return;
                         }
-                        // TODO enabling
+                        if (networkModuleManager.isEnabled(module)) {
+                            request.reply("Module already enabled!");
+                            return;
+                        }
+                        networkModuleManager.setEnabled(module, true);
+                        request.reply("Module enabled!");
                         return;
                     }
-
                     case "disable": {
-                        Module module = moduleManager.getModule(args[1].toLowerCase());
+                        Module module = moduleManager.getModule(moduleId);
                         if (module == null) {
                             request.reply("Invalid module!");
                             return;
                         }
-                        // TODO disabling
+                        if (module.isRequired()) {
+                            request.reply("You cannot disable this module.");
+                            return;
+                        }
+                        if (!networkModuleManager.isEnabled(module)) {
+                            request.reply("Module already disabled!");
+                            return;
+                        }
+                        networkModuleManager.setEnabled(module, false);
+                        request.reply("Module disabled!");
                         return;
                     }
                 }
